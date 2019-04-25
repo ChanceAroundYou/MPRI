@@ -6,7 +6,7 @@ name = "pypi"
 [packages]
 simpleitk = "==1.2.0"
 numpy = "==1.16.2"
-opencv-python = "==4.0.0.21"
+opencv-python = "==3.4.1.15"
 matplotlib = "*"
 
 [dev-packages]
