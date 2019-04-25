@@ -37,10 +37,10 @@ if __name__ == "__main__":
         image_nii, label_nii
     )
     mcp_mean_width, mcp_show_info = process.second_stage.run(
-        image_nii, label_nii, quad_seg_point, mid_num, show
+        image_nii, label_nii, quad_seg_point, mid_num, show=show
     )
     scp_mean_width, scp_show_info = process.third_stage.run(
-        image_nii, label_nii, quad_seg_point, mid_num, show
+        image_nii, label_nii, quad_seg_point, mid_num, show=show
     )
     if args.mode == 'calc':
         process.output.calc(pons_area, midbrain_area, mcp_mean_width, scp_mean_width, file_name=args.data)
