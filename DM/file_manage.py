@@ -35,8 +35,25 @@ class NiiFileManager(FileManager):
         self.sitk_img = None
         self.img = None
 
-    def load(self, dtype=np.float32):
-        self.sitk_img = sitk.ReadImage(self.path)
+    def resample_sitk(self, sitk_data, type_='image'):
+        print(sitk_data.GetSpacing())
+        ref_spacing = (1, 1, 1)
+        ref_size = [
+            int(round((size-1)*space/ref_space+1))
+            for ref_space, size, space
+            in zip(ref_spacing, sitk_data.GetSize(), sitk_data.GetSpacing())
+        ]
+
+        ref = sitk.Image(ref_size, sitk_data.GetPixelIDValue())
+        ref.SetSpacing(ref_spacing)
+        ref.SetOrigin(sitk_data.GetOrigin())
+        ref.SetDirection(sitk_data.GetDirection())
+        if type_ == 'image':
+            return sitk.Resample(sitk_data, ref, sitk.AffineTransform(3), sitk.sitkLinear)
+        return sitk.Resample(sitk_data, ref, sitk.AffineTransform(3), sitk.sitkNearestNeighbor)
+
+    def load(self, dtype=np.float32, type_='image'):
+        self.sitk_img = self.resample_sitk(sitk.ReadImage(self.path), type_)
         self.size = self.sitk_img.GetSize()
         self.img = sitk.GetArrayFromImage(self.sitk_img).astype(dtype)
         self.loaded = True
@@ -64,14 +81,14 @@ class NiiFileManager(FileManager):
 
 
 class RotatedNiiFileManager(NiiFileManager):
-    def load(self, dtype=np.float32):
-        super().load(dtype=dtype)
+    def load(self, dtype=np.float32, type_='image'):
+        super().load(dtype=dtype, type_=type_)
         self.img = np.rot90(self.img, k=2, axes=(0, 1))
         self.size = self.img.shape
 
 class LabelNiiFileManager(RotatedNiiFileManager):
     def load(self, dtype=np.uint8):
-        return super().load(dtype=dtype)
+        return super().load(dtype=dtype, type_='seg')
 
     def get_label(self, label, label_types):
         if isinstance(label_types, int):

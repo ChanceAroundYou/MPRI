@@ -13,7 +13,7 @@ def calc(
     pons_area: int, midbrain_area: int, mcp_width: float, scp_width: float, file_name: str=None
 ) -> None:
     mrpi = (pons_area / midbrain_area) * (mcp_width / scp_width)
-    report = 'Pons area: {}, Midbrain area: {}, MCP width: {}, SCP width: {}, MRPI: {}'. format(
+    report = 'Pons area: {}mm^2, Midbrain area: {}mm^2, MCP width: {}mm, SCP width: {}mm, MRPI: {}'. format(
         pons_area, midbrain_area, mcp_width, scp_width, mrpi
     )
     if file_name:
