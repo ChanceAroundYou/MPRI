@@ -6,7 +6,7 @@ from functools import wraps
 import matplotlib.pyplot as plt
 import numpy as np
 import SimpleITK as sitk
-import scipy
+from scipy.ndimage import rotate as scipy_rotate
 
 def nii_check_loaded(func):
     @wraps(func)
@@ -34,7 +34,6 @@ class NiiFileManager(FileManager):
         self.img = None
 
     def resample_sitk(self, sitk_data, type_='image'):
-        print(sitk_data.GetSpacing())
         ref_spacing = (1, 1, 1)
         ref_size = [
             int(round((size-1)*space/ref_space+1))
@@ -83,7 +82,7 @@ class NiiFileManager(FileManager):
         assert 0 <= dim < 3
         axes = list(range(3))
         axes.remove(dim)
-        self.img = scipy.ndimage.interpolation.rotate(self.img, np.rad2deg(angle), axes=axes, reshape=False)
+        self.img = scipy_rotate(self.img, np.rad2deg(angle), axes=axes, reshape=False)
 
 
 class RotatedNiiFileManager(NiiFileManager):

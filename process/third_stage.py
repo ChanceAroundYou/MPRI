@@ -33,12 +33,12 @@ def _get_peak(image: np.ndarray, start: int, end: int) -> Tuple[int, int]:
 def get_scp_sum(label_nii: LabelNiiFileManager, quad_seg_point: Point, scp_label: int=28) -> int:
     quad_num = int(quad_seg_point[1])
 
-    for num in range(quad_num-3, quad_num+5):
-        label = label_nii.get_slice(num, dim=1)
-        scp = label == scp_label
-        if scp.sum():
-            return num
-    # return quad_num
+    # for num in range(quad_num-3, quad_num+5):
+    #     label = label_nii.get_slice(num, dim=1)
+    #     scp = label == scp_label
+    #     if scp.sum():
+    #         return num
+    return quad_num
 
 def get_scp_components(
     image: np.ndarray, label: np.ndarray, quad_point: Point, accubrain=False,

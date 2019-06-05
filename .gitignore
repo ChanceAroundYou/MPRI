@@ -5,6 +5,5 @@
 data/**
 log/**
 **/__pycache__/**
-*.ipynb
-*.ps1
+.ps1
 Pipfile.lock

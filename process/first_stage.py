@@ -2,7 +2,7 @@ from __future__ import division
 from typing import Tuple
 
 import numpy as np
-
+import cv2
 import component
 import process
 from config import Box, Point
@@ -52,12 +52,18 @@ def get_corpus_angle(corpus: component.ConnectedComponent):
     corpus_angle = np.arctan((corpus_right[0] - corpus_left[0]) / (corpus_right[1] - corpus_left[1]))
     return corpus_angle
 
+def get_brainstem_angle(label_img: np.ndarray, midbrain_label: int=25, medulla_label: int=27):
+    brainstem = np.logical_or(label_img == midbrain_label, label_img == medulla_label)
+    points = np.fliplr(np.stack(np.where(brainstem), axis=1))
+    vx, vy, _, _ = cv2.fitLine(points, cv2.DIST_L2, 0, 0.01, 0.01)
+    return np.arctan(- vx[0] / vy[0])
+
 def get_rotated_quad_seg_point(quad_seg_point: Point, shape: Point, angle: float):
     center_y, center_x = tuple(map(lambda x: int(x / 2), shape))
     quad_y, quad_x = quad_seg_point
     # quad_angle = np.arctan((quad_y - center_y) / (quad_x - center_x))
     rotated_quad_x = int((quad_x-center_x)*np.cos(angle) + (quad_y-center_y)*np.sin(angle) + center_x)
-    rotated_quad_y = int((quad_y-center_y)*np.cos(angle) + (quad_x-center_x)*np.sin(angle) + center_y)
+    rotated_quad_y = int((quad_y-center_y)*np.cos(angle) - (quad_x-center_x)*np.sin(angle) + center_y)
     return (rotated_quad_y, rotated_quad_x)
 
 def get_quad_seg_point(
@@ -126,10 +132,11 @@ def run(
     )
     midbrain_area = get_midbrain_area(mid_label, midbrain_label=midbrain_label)
     pons_area = get_pons_area(mid_label, pons_label=pons_label)
-    corpus = get_corpus(mid_image)
-    corpus_angle = get_corpus_angle(corpus)
-    rotated_quad_seg_point = get_rotated_quad_seg_point(quad_seg_point, mid_image.shape, corpus_angle)
-    return quad_seg_point, mid_num, pons_area, midbrain_area, corpus_angle, rotated_quad_seg_point
+    # corpus = get_corpus(mid_image)
+    # corpus_angle = get_corpus_angle(corpus)
+    angle = get_brainstem_angle(mid_label)
+    rotated_quad_seg_point = get_rotated_quad_seg_point(quad_seg_point, mid_image.shape, angle)
+    return quad_seg_point, mid_num, pons_area, midbrain_area, angle, rotated_quad_seg_point
 
 def show(
     image_nii: RotatedNiiFileManager, quad_seg_point: Point,
