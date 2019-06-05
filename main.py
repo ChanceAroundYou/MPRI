@@ -33,7 +33,7 @@ if __name__ == "__main__":
     label_nii = LabelNiiFileManager(args.label)
     label_nii.load()
     show = args.mode != 'calc'
-    quad_seg_point, mid_num, pons_area, midbrain_area = process.first_stage.run(
+    quad_seg_point, mid_num, pons_area, midbrain_area, corpus_angle, rotate_quad_seg_point = process.first_stage.run(
         image_nii, label_nii
     )
     mcp_mean_width, mcp_show_info = process.second_stage.run(

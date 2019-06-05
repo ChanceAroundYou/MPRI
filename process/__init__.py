@@ -25,6 +25,31 @@ def get_diff(point_1, point_2):
 def get_length(y, x):
     return np.sqrt(np.square([y, x]).sum())
 
+def get_grav_center(img):
+    moments = cv2.moments(img)
+    grav_center_x = int(moments['m10']/moments['m00'])
+    grav_center_y = int(moments['m01']/moments['m00'])
+    return grav_center_y, grav_center_x
+
+def get_clahe_image(img, limit, row, col):
+    height, width = img.shape
+    clahe = cv2.createCLAHE(limit * 255, (int(height/row), int(width/col)))
+    return clahe.apply(img)
+
+def get_near_component(components, pos, limit, type_='point'):
+    assert type_ in ('point', 'area')
+    if type_ == 'point':
+        near_component = [
+            component for component in components
+            if get_area_distance(component.img, pos) < limit
+        ]
+    elif type_ == 'area':
+        near_component = [
+            component for component in components
+            if get_area_distance(pos, component.centroid) < limit
+        ]
+    return near_component
+
 def get_distance(point_1, point_2):
     diff_y, diff_x = get_diff(point_1, point_2)
     return get_length(diff_y, diff_x)
@@ -70,6 +95,10 @@ def get_bound_point(image, type_='l'):
     else:
         raise TypeError()
     return bound_point
+
+def get_bin_image(img, threshold):
+    _, bin_image = cv2.threshold(img, threshold, 255, cv2.THRESH_BINARY)
+    return bin_image
 
 def get_side_contour(src, side='r'):
     img = src.copy()

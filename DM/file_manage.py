@@ -1,14 +1,12 @@
 from __future__ import print_function
 from __future__ import division
 
-import os
-import random
 from functools import wraps
 
 import matplotlib.pyplot as plt
 import numpy as np
 import SimpleITK as sitk
-
+import scipy
 
 def nii_check_loaded(func):
     @wraps(func)
@@ -78,6 +76,14 @@ class NiiFileManager(FileManager):
     @nii_check_loaded
     def show(self, pos, dim=0):
         plt.imshow(self.get_slice(pos, dim=dim), 'gray')
+
+    @nii_check_loaded
+    def rotate(self, angle, dim=2):
+        assert isinstance(dim, int)
+        assert 0 <= dim < 3
+        axes = list(range(3))
+        axes.remove(dim)
+        self.img = scipy.ndimage.interpolation.rotate(self.img, np.rad2deg(angle), axes=axes, reshape=False)
 
 
 class RotatedNiiFileManager(NiiFileManager):
