@@ -91,6 +91,7 @@ class RotatedNiiFileManager(NiiFileManager):
         self.img = np.rot90(self.img, k=2, axes=(0, 1))
         self.size = self.img.shape
 
+
 class LabelNiiFileManager(RotatedNiiFileManager):
     def load(self, dtype=np.uint8):
         return super().load(dtype=dtype, type_='seg')
@@ -105,6 +106,7 @@ class LabelNiiFileManager(RotatedNiiFileManager):
 
     def normalize(self):
         print('label cannot be normalized')
+
 
 if __name__ == '__main__':
     pass
