@@ -33,14 +33,15 @@ if __name__ == "__main__":
     label_nii = LabelNiiFileManager(args.label)
     label_nii.load()
     show = args.mode != 'calc'
-    quad_seg_point, mid_num, pons_area, midbrain_area, corpus_angle, rotate_quad_seg_point = process.first_stage.run(
+
+    quad_seg_point, mid_num, pons_area, midbrain_area, angle, rotate_quad_seg_point = process.first_stage.run(
         image_nii, label_nii
     )
     mcp_mean_width, mcp_show_info = process.second_stage.run(
         image_nii, label_nii, quad_seg_point, mid_num, show=show
     )
     scp_mean_width, scp_show_info = process.third_stage.run(
-        image_nii, label_nii, quad_seg_point, mid_num, show=show
+        image_nii, label_nii, rotate_quad_seg_point, mid_num, angle
     )
     if args.mode == 'calc':
         process.output.calc(pons_area, midbrain_area, mcp_mean_width, scp_mean_width, file_name=args.data)
@@ -50,6 +51,7 @@ if __name__ == "__main__":
             args.output, image_nii.size, mid_num,
             quad_seg_point, mcp_show_info, scp_show_info
         )
+        
     elif args.mode == 'both':
         assert args.output
         process.output.save_to_sitk(

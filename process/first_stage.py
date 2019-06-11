@@ -52,11 +52,17 @@ def get_corpus_angle(corpus: component.ConnectedComponent):
     corpus_angle = np.arctan((corpus_right[0] - corpus_left[0]) / (corpus_right[1] - corpus_left[1]))
     return corpus_angle
 
-def get_brainstem_angle(label_img: np.ndarray, midbrain_label: int=25, medulla_label: int=27):
-    brainstem = np.logical_or(label_img == midbrain_label, label_img == medulla_label)
-    points = np.fliplr(np.stack(np.where(brainstem), axis=1))
+def get_img_angle(img: np.ndarray) -> float:
+    points = np.fliplr(np.stack(np.where(img), axis=1))
     vx, vy, _, _ = cv2.fitLine(points, cv2.DIST_L2, 0, 0.01, 0.01)
-    return np.arctan(- vx[0] / vy[0])
+    return np.arctan(-vx/vy)[0]
+
+def get_brainstem_angle(
+        label_img: np.ndarray, mod_angle: int=8,
+        midbrain_label: int=25, medulla_label: int=27
+) -> float:
+    brainstem = np.logical_or(label_img == midbrain_label, label_img == medulla_label)
+    return get_img_angle(brainstem) + np.deg2rad(mod_angle)
 
 def get_rotated_quad_seg_point(quad_seg_point: Point, shape: Point, angle: float):
     center_y, center_x = tuple(map(lambda x: int(x / 2), shape))
@@ -67,9 +73,9 @@ def get_rotated_quad_seg_point(quad_seg_point: Point, shape: Point, angle: float
     return (rotated_quad_y, rotated_quad_x)
 
 def get_quad_seg_point(
-    image: np.ndarray, label: np.ndarray,
-    midbrain_label: int=25, rate: float=1.21,
-    box: Box=((-15, 6), (-8, 8)), debug: bool=False
+        image: np.ndarray, label: np.ndarray,
+        midbrain_label: int=25, rate: float=1.21,
+        box: Box=((-15, 6), (-8, 8)), debug: bool=False
 ) -> Point:
     assert rate > 1
     right_bound = process.get_bound_point(label==midbrain_label, 'r')

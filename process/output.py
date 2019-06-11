@@ -34,9 +34,10 @@ def save_to_sitk(
         result[:, :, index][mcp.img_bool] = 2
         result[up_point][index] = 3
         result[down_point][index] = 3
-    for index, scps in scp_show_info:
-        for scp in scps:
-            result[:, index, :][scp.img_bool] = 4
+    if scp_show_info is not None:
+        for index, scps in scp_show_info:
+            for scp in scps:
+                    result[:, index, :][scp.img_bool] = 4
 
     result = np.rot90(result, k=2, axes=(0, 1))
     result = sitk.GetImageFromArray(result)
