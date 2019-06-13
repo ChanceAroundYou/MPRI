@@ -149,7 +149,7 @@ def run(
             scp_cut_points.append(get_cut_points(scp, rotated_scp, scp_angle))
 
     scp_width = np.mean(scp_widths)
-    print(scp_widths)
+    # print(scp_widths)
     if show_:
         scp_image = scp_slice.copy()
         move = (center_y+box[0], center_x+box[2])
