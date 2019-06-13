@@ -133,6 +133,16 @@ def get_side_contour(src, side='r'):
                     break
     return img
 
+def get_rotated_point(point, angle, center, center_after=None):
+    if center_after is None:
+        center_after = center
+    center_y, center_x = center
+    center_after_y, center_after_x = center_after
+    point_y, point_x = point
+    # quad_angle = np.arctan((quad_y - center_y) / (quad_x - center_x))
+    rotated_x = (point_x-center_x)*np.cos(angle) + (point_y-center_y)*np.sin(angle) + center_after_x
+    rotated_y = (point_y-center_y)*np.cos(angle) - (point_x-center_x)*np.sin(angle) + center_after_y
+    return int(rotated_y), int(rotated_x)
 # def get_point_by_angle_and_distance(point, angle, distance):
 #     point_y, point_x = point
 #     angle_y, angle_x = angle
@@ -183,9 +193,31 @@ def add_points(img, points, size=5, color=255, reverse=True):
     background = img.copy()
     for point in points:
         if reverse:
-            point = get_revese_point(point)
+            point = reversed(point)
         backgorund = cv2.circle(background, tuple(point), size, color, -1)
     return backgorund
+
+def add_line(img, point, param, type_='seg', reverse=True, color=255, thickness=3):
+    height, width = img.shape
+    assert is_point(point)
+    if not is_point(param):
+        line_k = param # y/x
+        type_ = 'line'
+    elif type_ == 'line':
+        line_k = (param[0] - point[0]) / (param[1] - point[1])
+
+    if type_ == 'line':
+        start = (0, int(point[1] - point[0] / line_k))
+        end = (height, int(point[1] + (height - point[0]) / line_k))
+    else:
+        start = point
+        end = param
+
+    if reverse:
+        start = reversed(start)
+        end = reversed(end)
+
+    return cv2.line(img.copy(), tuple(start), tuple(end), color, thickness)
 
 def add_mask(img, mask, color=255):
     img_copy = img.copy()

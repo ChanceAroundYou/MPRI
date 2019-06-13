@@ -78,7 +78,7 @@ def run(
     image_nii: RotatedNiiFileManager, label_nii: LabelNiiFileManager, quad_seg_point: Point, mid_num: int,
     pons_label: int=26, medulla_label: int=27, scp_label: int=28, num: int=14, rate: float=0.82,
     max_medulla_vol: int=150, max_scp_vol: int=0, min_dis: int=3, max_dis: int=13,
-    box: Box=((10, 40), (-8, 10)), show: bool=False
+    box: Box=((10, 40), (-8, 10)), show_: bool=False
 ) -> Tuple[int, List[Mcp_show_info_item]]:
     mcp_widths = []
     show_info = []
@@ -95,14 +95,14 @@ def run(
                     image, label, quad_seg_point,
                     rate=rate, pons_label=pons_label, box=box
                 )
-            except IndexError as error:
+            except IndexError:
                 continue
 
             mcp_left_down = _get_left_down(mcp.img, down_point)
 
             if min_dis <= mcp_left_down <= max_dis and mcp.down - down_point[0] < 20:
                 mcp_widths.append(get_mcp_width(up_point, down_point))
-                if show:
+                if show_:
                     show_info.append((mid_num-num+index, (up_point, down_point, mcp)))
 
     mcp_mean_width = np.mean(mcp_widths)

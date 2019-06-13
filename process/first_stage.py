@@ -33,7 +33,7 @@ def get_corpus(img, clahe_limit=0.02, bin_rate=1.6, center_rate=1/4,
     clahe_img = process.get_clahe_image(img, clahe_limit, clahe_row, clahe_col)
     clahe_otsu = process.get_otsu(clahe_img)
     clahe_bin_img = process.get_bin_image(clahe_img, clahe_otsu * bin_rate)
-    components, label = component.get_connected_component(clahe_bin_img, min_area)
+    components, _ = component.get_connected_component(clahe_bin_img, min_area)
     components = [
         component for component in components
         if component.in_range(
@@ -64,13 +64,6 @@ def get_brainstem_angle(
     brainstem = np.logical_or(label_img == midbrain_label, label_img == medulla_label)
     return get_img_angle(brainstem) + np.deg2rad(mod_angle)
 
-def get_rotated_quad_seg_point(quad_seg_point: Point, shape: Point, angle: float):
-    center_y, center_x = tuple(map(lambda x: int(x / 2), shape))
-    quad_y, quad_x = quad_seg_point
-    # quad_angle = np.arctan((quad_y - center_y) / (quad_x - center_x))
-    rotated_quad_x = int((quad_x-center_x)*np.cos(angle) + (quad_y-center_y)*np.sin(angle) + center_x)
-    rotated_quad_y = int((quad_y-center_y)*np.cos(angle) - (quad_x-center_x)*np.sin(angle) + center_y)
-    return (rotated_quad_y, rotated_quad_x)
 
 def get_quad_seg_point(
         image: np.ndarray, label: np.ndarray,
@@ -122,10 +115,10 @@ def get_midbrain_area(label: np.ndarray, midbrain_label: int=25) -> int:
     return (label==midbrain_label).sum()
 
 def run(
-    image_nii: RotatedNiiFileManager, label_nii: LabelNiiFileManager,
-    mid_num_rate: float=0.06, quad_seg_rate: float=1.21,
-    midbrain_label: int=25, pons_label: int=26,
-    box: Box=((-15, 6), (-8, 8)), debug: bool=False
+        image_nii: RotatedNiiFileManager, label_nii: LabelNiiFileManager,
+        mid_num_rate: float=0.06, quad_seg_rate: float=1.21,
+        midbrain_label: int=25, pons_label: int=26,
+        box: Box=((-15, 6), (-8, 8)), debug: bool=False
 ) -> Tuple[Point, int, int, int]:
     mid_num = get_mid_num(
         label_nii, rate=mid_num_rate, midbrain_label=midbrain_label,
@@ -141,7 +134,8 @@ def run(
     # corpus = get_corpus(mid_image)
     # corpus_angle = get_corpus_angle(corpus)
     angle = get_brainstem_angle(mid_label)
-    rotated_quad_seg_point = get_rotated_quad_seg_point(quad_seg_point, mid_image.shape, angle)
+    img_center = tuple(map(lambda x: x / 2, mid_image.shape))
+    rotated_quad_seg_point = process.get_rotated_point(quad_seg_point, angle, img_center)
     return quad_seg_point, mid_num, pons_area, midbrain_area, angle, rotated_quad_seg_point
 
 def show(

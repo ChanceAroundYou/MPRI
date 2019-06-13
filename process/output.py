@@ -3,6 +3,8 @@ from __future__ import division
 from __future__ import with_statement
 from typing import List, Tuple
 
+import os
+import cv2
 import numpy as np
 import SimpleITK as sitk
 
@@ -22,9 +24,9 @@ def calc(
     else:
         print(report)
 
-def save_to_sitk(
-    file_name: str, size: Tuple[int, int], mid_num: int, quad_seg_point: Point,
-    mcp_show_info: List[Mcp_show_info_item], scp_show_info: List[Scp_show_info_item]
+def save(
+    dir_path: str, size: Tuple[int, int], mid_num: int, quad_seg_point: Point,
+    mcp_show_info: List[Mcp_show_info_item], scp_show_info: Scp_show_info_item
 ) -> None:
     result = np.zeros(size, dtype=np.uint8)
     # quad_seg_point
@@ -35,13 +37,13 @@ def save_to_sitk(
         result[up_point][index] = 3
         result[down_point][index] = 3
     if scp_show_info is not None:
-        for index, scps in scp_show_info:
-            for scp in scps:
-                    result[:, index, :][scp.img_bool] = 4
+        mid_image, scp_image = scp_show_info
+        cv2.imwrite(os.path.join(dir_path, 'SCP_cut_line.jpg'), mid_image)
+        cv2.imwrite(os.path.join(dir_path, 'SCP.jpg'), scp_image)
 
     result = np.rot90(result, k=2, axes=(0, 1))
     result = sitk.GetImageFromArray(result)
-    sitk.WriteImage(result, file_name)
+    sitk.WriteImage(result, os.path.join(dir_path, 'Seg_result.nii.gz'))
 
 def save_to_image():
     raise NotImplementedError()
