@@ -75,18 +75,21 @@ def get_clear_scp(scp):
     max_x = None
     diff = np.diff(low, 1)
     # print(low, diff)
-    for x in range(5, len(low), 3):
-        dleft = diff[max(x-5, 0):x].sum()
-        dright = diff[x:x+5].sum()
+    nonzero_diff = np.where(diff)[0]
+
+    for x in range(5, len(low) - 40, 3):
+        dleft = diff[nonzero_diff[nonzero_diff < x][-5:]].sum()
+        dright = diff[nonzero_diff[nonzero_diff >= x][:5]].sum()
         if dleft >= 0 and dright < 0:
-            # print(x, diff[max(x-10, 0):x], diff[x:x+10])
-            if diff[max(x-10, 0):x].sum() > 8 or diff[x:x+10].sum() < -8:
+            # print(x, diff[nonzero_diff[nonzero_diff < x][-5:]], diff[nonzero_diff[nonzero_diff >= x][:5]])
+            # if diff[max(x-10, 0):x].sum() >= 10 or diff[x:x+10].sum() <= -10:
+            if max(abs(dleft), abs(dright)) >= 5:
                 max_x = x
 
     if left < 120 and max_x is not None and max_x > 5:
-        scp[:, :left + max_x + 8] = 0
+        scp[:, :left + max_x + 0] = 0
     elif left > 120 and max_x is not None and right - left - max_x > 5:
-        scp[:, right - max_x - 8:] = 0
+        scp[:, right - max_x - 0:] = 0
     return scp
 
 def get_rotated_cut_points(rotated_scp):
@@ -141,7 +144,7 @@ def run(
         scp_angle = process.first_stage.get_img_angle(scp)
         scp[140:] = 0
         rotated_scp = scipy_rotate(scp, np.rad2deg(scp_angle), reshape=True)
-        plt.imshow(rotated_scp)
+        # plt.imshow(rotated_scp)
         # print(rotated_scp.sum(axis=1).max())
         scp_widths.append(rotated_scp.sum(axis=1).max() / size + add)
 

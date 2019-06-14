@@ -5,5 +5,3 @@
 data/**
 log/**
 **/__pycache__/**
-*.ps1
-Pipfile.lock
