@@ -45,7 +45,7 @@ if __name__ == "__main__":
     )
     if args.mode == 'calc':
         process.output.calc(
-            pons_area, midbrain_area, mcp_mean_width,
+            args.output, pons_area, midbrain_area, mcp_mean_width,
             scp_mean_width, file_name=args.data
         )
     elif args.mode == 'seg':
@@ -62,7 +62,7 @@ if __name__ == "__main__":
             quad_seg_point, mcp_show_info, scp_show_info
         )
         process.output.calc(
-            pons_area, midbrain_area, mcp_mean_width,
+            args.output, pons_area, midbrain_area, mcp_mean_width,
             scp_mean_width, file_name=args.data
         )
     else:

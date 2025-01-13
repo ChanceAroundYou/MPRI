@@ -19,6 +19,6 @@ do
 	if ls $dir | grep -q $IMAGE
 	then
 		echo $dir
-		$PYTHON_PATH main.py -i $dir/$IMAGE -l $dir/$LABEL -o $dir both
+		$PYTHON_PATH main.py -i $dir/$IMAGE -l $dir/$LABEL -o $dir -d data.txt both
 	fi
 done	

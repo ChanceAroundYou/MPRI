@@ -12,14 +12,14 @@ from config import Mcp_show_info_item, Point, Scp_show_info_item
 
 
 def calc(
-    pons_area: int, midbrain_area: int, mcp_width: float, scp_width: float, file_name: str=None
+    dir_path: str, pons_area: int, midbrain_area: int, mcp_width: float, scp_width: float, file_name: str=None
 ) -> None:
     mrpi = (pons_area / midbrain_area) * (mcp_width / scp_width)
     report = 'Pons area: {}mm^2, Midbrain area: {}mm^2, MCP width: {}mm, SCP width: {}mm, MRPI: {}'. format(
         pons_area, midbrain_area, mcp_width, scp_width, mrpi
     )
     if file_name:
-        with open(file_name, 'w+') as file:
+        with open(os.path.join(dir_path, file_name), 'w+') as file:
             file.write(report)
     else:
         print(report)
